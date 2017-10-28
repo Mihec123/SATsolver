@@ -40,13 +40,14 @@ def SATsolver(CNF):
         return True
     else:
         evaluacija = evaluacija[0:i]
-        evaluacija.append(Not(b).simplify)
-        return SATsolver(CNF.simplifyby(bb, Not(bool).simplify))
+        evaluacija.append(Not(b).simplify())
+        return SATsolver(CNF.simplifyby(bb, Not(bool).simplify()))
 
 
 test = And(Or("p","q"),Or(Not("p"),"r"),Or(Not("q"),Not("r")),Or("q",Not("p"),Not("r")))
-
-print("reziltat")
-print(SATsolver(test))
-for el in evaluacija:
-    print(el)
+# #STRESSTEST
+for _ in range(999):
+    print("reziltat")
+    print(SATsolver(test))
+    for el in evaluacija:
+        print(el)
