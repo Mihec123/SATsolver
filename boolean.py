@@ -214,15 +214,15 @@ def tseytin(formula, mapping = None):
     return And(f, *(k.equiv(v) for k, v in mapping.items())).flatten()
 
 
-a0 = And(Or("p","q"),Or(Not("p"),"r"),Or(Not("q"),Not("r")),Or("q",Not("p"),Not("r")))
-print(a0)
-a1 = a0.simplifyby("p",T)
-print(a1)
-a2 = a1.simplifyby("r",T)
-print(a2)
-a3 = a2.simplifyby("q",F)
-print(a3)
-
-for el in a0:
-    print("dolzina elementa je: "+ str(len(el)))
-    print(el)
+# a0 = And(Or("p","q"),Or(Not("p"),"r"),Or(Not("q"),Not("r")),Or("q",Not("p"),Not("r")))
+# print(a0)
+# a1 = a0.simplifyby("p",T)
+# print(a1)
+# a2 = a1.simplifyby("r",T)
+# print(a2)
+# a3 = a2.simplifyby("q",F)
+# print(a3)
+#
+# for el in a0:
+#     print("dolzina elementa je: "+ str(len(el)))
+#     print(el)
