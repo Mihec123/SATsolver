@@ -17,6 +17,9 @@ class Variable(Formula):
     def __str__(self, parentheses = False):
         return str(self.x)
 
+    def __repr__(self, parentheses = False):
+        return str(self.x)
+
     def __hash__(self):
         return hash(self.x)
 
@@ -27,7 +30,7 @@ class Variable(Formula):
             return self.x == other
         
     def __len__(self):
-        return len(self.x)
+        return 1
 
     def evaluate(self, values):
         return values[self.x]
@@ -52,6 +55,9 @@ class Not(Formula):
         self.x = makeFormula(x)
 
     def __str__(self, parentheses = False):
+        return "~" + self.x.__str__(True)
+
+    def __repr__(self, parentheses = False):
         return "~" + self.x.__str__(True)
 
     def __hash__(self):
@@ -103,6 +109,17 @@ class Multi(Formula):
         self.terms = frozenset(makeFormula(x) for x in args)
 
     def __str__(self, parentheses = False):
+        if len(self.terms) == 0:
+            return self.empty
+        elif len(self.terms) == 1:
+            return next(iter(self.terms)).__str__(parentheses)
+        out = self.connective.join(x.__str__(True) for x in self.terms)
+        if parentheses:
+            return "(%s)" % out
+        else:
+            return out
+
+    def __repr__(self, parentheses = False):
         if len(self.terms) == 0:
             return self.empty
         elif len(self.terms) == 1:

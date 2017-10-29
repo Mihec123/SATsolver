@@ -24,7 +24,6 @@ def SATsolver(CNF):
 
     #if all else fails
     b=next(iter((next((iter(CNF))))))
-    #print(b)
     if isinstance(b, Not):
         bb = b.x
         bool = F
@@ -46,8 +45,7 @@ def SATsolver(CNF):
 
 test = And(Or("p","q"),Or(Not("p"),"r"),Or(Not("q"),Not("r")),Or("q",Not("p"),Not("r")))
 # #STRESSTEST
-for _ in range(999):
-    print("reziltat")
-    print(SATsolver(test))
-    for el in evaluacija:
-        print(el)
+##print("reziltat")
+##print(SATsolver(test))
+##for el in evaluacija:
+##    print(el)
