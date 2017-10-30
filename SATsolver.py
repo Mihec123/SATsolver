@@ -47,6 +47,46 @@ def SATsolver(CNF):
         evaluacija.append(Not(b).simplify())
         return SATsolver(CNF.simplifyby(bb, Not(bool).simplify()))
 
+def max_literal(CNF):
+    # funkcija vzame tisti litaral, ki se v eni obliki pojavlja čibmolj večkrat kot v drugi
+    # če se pojavlja samo v eni obliki, bo pač vzel tistega
+    variables = strip_info(CNF)
+    max_k = None
+    # razmerje je podano z obratnim številom da se izognemo deljenju z 0
+    max_val = 2
+    for k,v in variables.items():
+        t,f = v
+        if t>f:
+            if f/t < max_val:
+                max_k,max_val = (k, T), f/t
+        else:
+            if t/f < max_val:
+                max_k, max_val = (k, F), t/f
+        if max_val == 0:
+            return max_k
+    return max_k
+
+
+def strip_info(CNF):
+    dict = {}
+    # fi:(#T,#F) slovar ki šteje kolikokrat se pojavi literal v trdilni in negalni obliki
+    for dis in CNF:
+        for fi in dis:
+            if isinstance(fi, Not):
+                if fi.x in dict:
+                    t, f = dict[fi.x]
+                    dict[fi.x] = t, f + 1
+                else:
+                    dict[fi.x] = (0,1)
+            else:
+                if fi in dict:
+                    t, f = dict[fi]
+                    dict[fi] = t + 1, f
+                else:
+                    dict[fi] = (1,0)
+    return dict
+
+
 
 def maxpojavitev(CNF):
     """dobi CNF in vrne element, ki se v CNF pojavi najveckrat"""
@@ -76,8 +116,8 @@ def dimToSat(file):
                 pass
             else:
                 ali = []
-                temp = line.strip().split()
-                for el in temp:
+                dict = line.strip().split()
+                for el in dict:
                     if el[0] == "-":
                         ali.append(Not(el[1:]))
                     elif el[0] == "0":
@@ -89,9 +129,3 @@ def dimToSat(file):
                         
 
 
-#test = And(Or("p","q"),Or(Not("p"),"r"),Or(Not("q"),Not("r")),Or("q",Not("p"),Not("r")))
-# #STRESSTEST
-##print("reziltat")
-##print(SATsolver(test))
-##for el in evaluacija:
-##    print(el)
