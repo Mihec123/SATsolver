@@ -1,4 +1,5 @@
 from boolean import *
+import sys
 
 evaluacija = []
 
@@ -139,7 +140,25 @@ def SatToDim(evaluacija,file):
         f.write(zapis)
     
         
+
+def main(argv):
+    """funkcija kot argument dobi seznam argv = [input.txt, output.txt] in resi SAT problem podan z input.txt
+    ce resitve ne najdemo v output.txt zapise le 0"""
+    global evaluacija
     
-                        
+    #Najprej klicemo zapis v file na seznamu, ki vsebuje samo nulo. V primeru
+    #da uporabnik prekine program bo torej resitev 0
+    SatToDim(["0"],argv[1])
+    
+    CNF = dimToSat(argv[0])
+    boolean = SATsolver(CNF)
+    SatToDim(evaluacija,argv[1])
+
+    #nastavimo evaluacijo na prazen seznam, da lahko ponovno poklicemo metodo
+    evaluacija = []
+    
+#del, ki se zazene ko klicemo program    
+##if __name__ == "__main__":
+##    main(sys.argv[1:])
 
 
