@@ -126,6 +126,20 @@ def dimToSat(file):
                         ali.append(el)
                 conj.append(Or(*ali))
     return And(*conj)
+
+
+def SatToDim(evaluacija,file):
+    zapis = ""
+    for el in evaluacija:
+        if isinstance(el, Not):
+            zapis += "-" + str(el.x)+ " "
+        else:
+            zapis += str(el)+ " "
+    with open(file, 'w') as f:
+        f.write(zapis)
+    
+        
+    
                         
 
 
