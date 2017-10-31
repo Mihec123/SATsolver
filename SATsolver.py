@@ -1,54 +1,71 @@
 from boolean import *
+import sys
 
-evaluacija = []
+# definirajmo objek ki je v bistvu seznam literalov, pri katerih je formula "satisfiable", če je drugače vrne false
+class literal_table:
+    def __init__(self, CNF):
+        self.evaluacija = []        # seznam literalov
+        self.dolzina = 0            # dolžina seznama, dobro imeti zato, da ne rabimo vedno gledati dolžine evaluacije
+        self.resljivost = None      # boolean, ki nam pove če je naš CNF sploh "satisfiable" None pomeni, da smo se "predali"
+        self.resljivost = self.generete_from_CNF(CNF)
+
+    def generete_from_CNF(self, CNF):
+        # ce je CNF dolzine 0 pomeni da smo zaradi praznih And ali Or dobili T ali F
+        if len(CNF) == 0:
+            return CNF.evaluate({})
+
+        # ce je dolzina CNF enaka 1, to spremenljivko dodamo med evaluacijske in s tem dobimo True
+        elif len(CNF) == 1:
+            self.evaluacija.append(CNF)
+            self.dolzina += 1
+            return True
+
+        # poiscemo vse unit clause
+        for fi in CNF:
+            if len(fi) == 1:
+                a = fi
+                self.evaluacija.append(a)
+                self.dolzina += 1
+                if isinstance(a, Not):
+                    aa = a.x
+                    CNF = CNF.simplifyby(aa, F)
+                else:
+                    CNF = CNF.simplifyby(a, T)
+                return self.generete_from_CNF(CNF)
+
+        # if all else fails
+        # za novo evaluacijsko spremenljivko izberemo tisto, ki se
+        # pojavi najveckrat
+        bb, bool = max_literal(CNF)
+        if bool.evaluate({}):
+            b = bb
+        else:
+            b = Not(bb)
+
+        i = self.dolzina + 1
+        CNF2 = CNF.simplifyby(bb, bool)
+        self.evaluacija.append(b)
+        if self.generete_from_CNF(CNF2):
+            return True
+        else:
+            self.evaluacija = self.evaluacija[0:i-1]
+            self.dolzina = i
+            self.evaluacija.append(Not(b).simplify())
+            return self.generete_from_CNF(CNF.simplifyby(bb, Not(bool).simplify()))
 
 def SATsolver(CNF):
-    global evaluacija
-    #ce je CNF dolzine 0 pomeni da smo zaradi praznih And ali Or dobili T ali F
-    if len(CNF) == 0:
-        return CNF.evaluate({})
-    
-    #ce je dolzina CNF enaka 1, to spremenljivko dodamo med evaluacijske in s tem dobimo True
-    elif len(CNF) == 1:
-        evaluacija.append(CNF)
-        return True
-
-    #poiscemo vse unit clause
-    for fi in CNF:
-        if len(fi)==1:
-            a = fi
-            evaluacija.append(a)
-            if isinstance(a, Not):
-                aa = a.x
-                CNF = CNF.simplifyby(aa, F)
-            else:
-                CNF = CNF.simplifyby(a,T)
-            return SATsolver(CNF)
-
-    #if all else fails
-    #za novo evaluacijsko spremenljivko izberemo tisto, ki se
-    #pojavi najveckrat
-    b=maxpojavitev(CNF)
-    if isinstance(b, Not):
-        bb = b.x
-        bool = F
-
+    """SATsolver, s pomočjo objekta literal_table in funkcije max_literal"""
+    temp = literal_table(CNF)
+    if temp.resljivost:
+        return (True,temp.evaluacija)
     else:
-        bb = b
-        bool = T
+        return (False, None)
 
-    i = len(evaluacija)
-    CNF2 = CNF.simplifyby(bb, bool)
-    evaluacija.append(b)
-    if SATsolver(CNF2):
-        return True
-    else:
-        evaluacija = evaluacija[0:i]
-        evaluacija.append(Not(b).simplify())
-        return SATsolver(CNF.simplifyby(bb, Not(bool).simplify()))
+
+
 
 def max_literal(CNF):
-    # funkcija vzame tisti litaral, ki se v eni obliki pojavlja čibmolj večkrat kot v drugi
+    """Funkcija vzame tisti litaral, ki se v eni obliki pojavlja čibmolj večkrat kot v drugi"""
     # če se pojavlja samo v eni obliki, bo pač vzel tistega
     variables = strip_info(CNF)
     max_k = None
@@ -68,8 +85,9 @@ def max_literal(CNF):
 
 
 def strip_info(CNF):
+    """Funkcija vrne slovar {fi:(#T,#F)}. Ta slovar ki šteje pojavitve literala v trdilni in negalni obliki"""
     dict = {}
-    # fi:(#T,#F) slovar ki šteje kolikokrat se pojavi literal v trdilni in negalni obliki
+    # fi:(#T,#F)
     for dis in CNF:
         for fi in dis:
             if isinstance(fi, Not):
@@ -87,59 +105,21 @@ def strip_info(CNF):
     return dict
 
 
-
-def maxpojavitev(CNF):
-    """dobi CNF in vrne element, ki se v CNF pojavi najveckrat"""
-    dict = {}
-    max = (None, 0)
-    for el in CNF:
-        for e in el:
-            if e in dict:
-                dict[e] += 1
-                vr = dict[e]
-                if max[1] < vr:
-                    max = (e, vr)
-            else:
-                dict[e] = 1
-                if max[1] < 1:
-                    max = (e, 1)
-    return max[0]
+# def maxpojavitev(CNF):
+#     """dobi CNF in vrne element, ki se v CNF pojavi najveckrat"""
+#     dict = {}
+#     max = (None, 0)
+#     for el in CNF:
+#         for e in el:
+#             if e in dict:
+#                 dict[e] += 1
+#                 vr = dict[e]
+#                 if max[1] < vr:
+#                     max = (e, vr)
+#             else:
+#                 dict[e] = 1
+#                 if max[1] < 1:
+#                     max = (e, 1)
+#     return max[0]
     
-    
-
-def dimToSat(file):
-    """Funkcija nam vrne CNF narejen iz datoteke, ki je v dimacs formatu"""
-    conj = []
-    with open(file) as f:
-        for line in iter(f.readline, ''):
-            if line[0] == "p" or line[0] == "c":
-                pass
-            else:
-                ali = []
-                dict = line.strip().split()
-                for el in dict:
-                    if el[0] == "-":
-                        ali.append(Not(el[1:]))
-                    elif el[0] == "0":
-                        break
-                    else:
-                        ali.append(el)
-                conj.append(Or(*ali))
-    return And(*conj)
-
-
-def SatToDim(evaluacija,file):
-    zapis = ""
-    for el in evaluacija:
-        if isinstance(el, Not):
-            zapis += "-" + str(el.x)+ " "
-        else:
-            zapis += str(el)+ " "
-    with open(file, 'w') as f:
-        f.write(zapis)
-    
-        
-    
-                        
-
 
