@@ -1,5 +1,6 @@
 from boolean import *
 import sys
+import time as t
 
 # definirajmo objek ki je v bistvu seznam literalov, pri katerih je formula "satisfiable", če je drugače vrne false
 class literal_table:
@@ -21,29 +22,47 @@ class literal_table:
             return True
 
         # poiscemo vse unit clause
+        start_uc = t.time()
+        najdeno = False
+        literali ={}
         for fi in CNF:
             if len(fi) == 1:
+                najdeno = True
                 a = fi
                 self.evaluacija.append(a)
                 self.dolzina += 1
                 if isinstance(a, Not):
                     aa = a.x
-                    CNF = CNF.simplifyby(aa, F)
+                    #CNF = CNF.simplifyby(aa, F)
+                    literali[aa] = F
                 else:
-                    CNF = CNF.simplifyby(a, T)
-                return self.generete_from_CNF(CNF)
+                    #CNF = CNF.simplifyby(a, T)
+                    literali[a] = T
+        if najdeno:
+            end_uc = t.time()
+            print("unit clouse: " + str(end_uc - start_uc))
+            t_st = t.time()
+            CNF = CNF.simplifyby(literali)
+            t_end = t.time()
+            return self.generete_from_CNF(CNF)
+        else:
+            end_uc = t.time()
+            print("unit clouse: " + str(end_uc - start_uc))
 
         # if all else fails
         # za novo evaluacijsko spremenljivko izberemo tisto, ki se
         # pojavi najveckrat
+        start_maxlit = t.time()
         bb, bool = max_literal(CNF)
         if bool.evaluate({}):
             b = bb
         else:
             b = Not(bb)
+        end_maxlit = t.time()
+        print("max literal: " + str(end_maxlit - start_maxlit))
 
         i = self.dolzina + 1
-        CNF2 = CNF.simplifyby(bb, bool)
+        CNF2 = CNF.simplifyby({bb: bool})
         self.evaluacija.append(b)
         if self.generete_from_CNF(CNF2):
             return True
@@ -51,8 +70,12 @@ class literal_table:
             self.evaluacija = self.evaluacija[0:i-1]
             self.dolzina = i
             self.evaluacija.append(Not(b).simplify())
-            return self.generete_from_CNF(CNF.simplifyby(bb, Not(bool).simplify()))
+            if bool:
+                return self.generete_from_CNF(CNF.simplifyby({bb: F}))
+            else:
+                return self.generete_from_CNF(CNF.simplifyby({bb: T}))
 
+                                          
 def SATsolver(CNF):
     """SATsolver, s pomočjo objekta literal_table in funkcije max_literal"""
     temp = literal_table(CNF)

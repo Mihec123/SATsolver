@@ -38,9 +38,9 @@ class Variable(Formula):
     def simplify(self):
         return self
 
-    def simplifyby(self,variable,value):
-        if self.x == variable:
-            return value
+    def simplifyby(self,slovar):
+        if self.x in slovar:
+            return slovar[self.x]
         else:
             return self
 
@@ -88,13 +88,13 @@ class Not(Formula):
         else:
             return self.flatten().simplify()
 
-    def simplifyby(self,variable,value):
+    def simplifyby(self,slovar):
         if isinstance(self.x, And):
-            return Or(*(Not(y.simplifyby(variable,value)) for y in self.x.terms)).simplify()
+            return Or(*(Not(y.simplifyby(slovar)) for y in self.x.terms)).simplify()
         elif isinstance(self.x, Or):
-            return And(*(Not(y.simplifyby(variable,value)) for y in self.x.terms)).simplify()
+            return And(*(Not(y.simplifyby(slovar)) for y in self.x.terms)).simplify()
         elif isinstance(self.x, Variable):
-            return Not(self.x.simplifyby(variable,value)).simplify()
+            return Not(self.x.simplifyby(slovar)).simplify()
         else:
             return self.flatten().simplifyby(variable,value)
 
@@ -165,13 +165,13 @@ class Multi(Formula):
             return terms[0]
         return self.getClass()(*terms).flatten()
 
-    def simplifyby(self,variable,value):    
-        terms = [x.simplifyby(variable,value) for x in self.terms]
+    def simplifyby(self,slovar):    
+        terms = [x.simplifyby(slovar) for x in self.terms]
         const = self.getDualClass()()
         if const in terms:
             return const
         if len(terms) == 1:
-            return terms[0].simplifyby(variable,value)
+            return terms[0].simplifyby(slovar)
         return self.getClass()(*terms).flatten()
 
     def tseytin(self, mapping):
