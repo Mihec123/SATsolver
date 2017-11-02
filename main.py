@@ -1,6 +1,6 @@
 from SATsolver import SATsolver
 from boolean import *
-import time
+import sys
 
 def dimToSat(file):
     """Funkcija nam vrne CNF narejen iz datoteke, ki je v dimacs formatu"""
@@ -47,12 +47,13 @@ def main(argv):
     if boolean:
         SatToDim(evaluacija, argv[1])
 
+#testni primer
+#main(["./testni primeri/sudoku_hard.txt","resitve.txt"])
 
-main(["sudoku_hard.txt","resitve.txt"])
 
         
-# del, ki se zazene ko klicemo program
-##if __name__ == "__main__":
-##    main(sys.argv[1:])
+#del, ki se zazene ko klicemo program
+if __name__ == "__main__":
+    main(sys.argv[1:])
 
 

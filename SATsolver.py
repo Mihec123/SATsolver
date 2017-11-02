@@ -1,6 +1,5 @@
 from boolean import *
 import sys
-import time as t
 
 # definirajmo objek ki je v bistvu seznam literalov, pri katerih je formula "satisfiable", če je drugače vrne false
 class literal_table:
@@ -22,44 +21,33 @@ class literal_table:
             return True
 
         # poiscemo vse unit clause
-        start_uc = t.time()
         najdeno = False
         literali ={}
         for fi in CNF:
             if len(fi) == 1:
                 najdeno = True
-                a = fi
+                a = fi.simplify()
                 self.evaluacija.append(a)
                 self.dolzina += 1
                 if isinstance(a, Not):
-                    aa = a.x
+                    aa = a.x.simplify()
                     #CNF = CNF.simplifyby(aa, F)
                     literali[aa] = F
                 else:
                     #CNF = CNF.simplifyby(a, T)
                     literali[a] = T
         if najdeno:
-            end_uc = t.time()
-            print("unit clouse: " + str(end_uc - start_uc))
-            t_st = t.time()
             CNF = CNF.simplifyby(literali)
-            t_end = t.time()
             return self.generete_from_CNF(CNF)
-        else:
-            end_uc = t.time()
-            print("unit clouse: " + str(end_uc - start_uc))
 
         # if all else fails
         # za novo evaluacijsko spremenljivko izberemo tisto, ki se
         # pojavi najveckrat
-        start_maxlit = t.time()
         bb, bool = max_literal(CNF)
         if bool.evaluate({}):
-            b = bb
+            b = bb.simplify()
         else:
-            b = Not(bb)
-        end_maxlit = t.time()
-        print("max literal: " + str(end_maxlit - start_maxlit))
+            b = Not(bb).simplify()
 
         i = self.dolzina + 1
         CNF2 = CNF.simplifyby({bb: bool})
