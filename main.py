@@ -46,9 +46,11 @@ def main(argv):
     boolean,evaluacija = SATsolver(CNF)
     if boolean:
         SatToDim(evaluacija, argv[1])
+        print("satisfiable")
+    else:
+        print("unsatisfiable")
 
 #testni primer
-#main(["./testni primeri/sudoku_hard.txt","resitve.txt"])
 
 
         
