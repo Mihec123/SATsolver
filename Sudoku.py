@@ -85,9 +85,36 @@ def Sudoku2dim(ime, n, sez, info=""):
         f.write(glava)
         f.write("c " + info + "\n")
         f.write("c\n")
-        f.write("p cnf {0} {1}\n".format(n**3, dolz))
+        f.write("p cnf {0} {1}\n".format(n**3 + len(sez), dolz))
         f.write(zapis)
 
 
+def dim2Sudoku(ime,n):
+    with open(ime, 'r') as f:
+        for el in f:
+            resitev = el.strip().split()
+    resitev = list(map(int, resitev))
+    sudoku=[[0 for j in range(n)] for i in range(n)]
+    for el in resitev:
+        if el > 0:
+            vrednost = el % n
+            if vrednost == 0:
+                vrednost = n
 
-Sudoku2dim("test", 9, [(2,2,2)])
+            if el % n**2 == 0:
+                y = el // n**2
+                y = y-1
+                x = n-1
+
+            else:
+                y = el // n**2
+                x = el % n**2
+                if x % n == 0:
+                    x = x // n
+                    x = x-1
+                else:
+                    x = x // n
+                
+            sudoku[y][x] = vrednost
+    return sudoku
+

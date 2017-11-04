@@ -51,10 +51,11 @@ def main(argv):
         print("unsatisfiable")
 
 #testni primer
-
+#main(["./testni_primeri/sudoku_hard.txt","resitve.txt"])
+#main(["./testni_primeri/sudoku_9.txt","resitve.txt"])
 
         
-#del, ki se zazene ko klicemo program
+###del, ki se zazene ko klicemo program
 if __name__ == "__main__":
     main(sys.argv[1:])
 
